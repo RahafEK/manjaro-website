@@ -11,7 +11,7 @@
 
     <div class="mx-auto max-w-[400px] md:max-w-[820px] xl:max-w-max font-[sans-serif] grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       <NuxtLink
-        v-for="item of data"
+        v-for="item in paginatedData"
         :key="item.id"
         :href="item._path!"
         class="flex flex-col rounded overflow-hidden border dark:border-gray-700 transform hover:scale-[1.02] transition-transform duration-300"
@@ -37,11 +37,39 @@
         </div>
       </NuxtLink>
     </div>
+    <div class="flex justify-between mt-8">
+      <button
+        :disabled="currentPage === 1"
+        class="btn"
+        @click="goToPreviousPage"
+      >
+        <
+      </button>
+      <div>
+        <NuxtLink
+          v-for="page in totalPages"
+          :key="page"
+          :href="getPageLink(page)"
+          :class="['btn', { active: page === currentPage }]"
+          @click="goToPage(page, $event)"
+        >
+          {{ page }}
+        </NuxtLink>
+      </div>
+      <button
+        :disabled="currentPage === totalPages"
+        class="btn"
+        @click="goToNextPage"
+      >
+        >
+      </button>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { useTimeAgo } from '@vueuse/core'
+import { useRouter, useRoute } from 'vue-router'
 
 useHead({
   title: 'News',
@@ -60,4 +88,57 @@ const { data } = await useAsyncData('news-items-list', () =>
     .sort({ date: -1 })
     .find(),
 )
+const itemsPerPage = 9
+const route = useRoute()
+const router = useRouter()
+const currentPage = ref(parseInt(route.query.page || '1'))
+
+const totalPages = computed(() => Math.ceil(data.value.length / itemsPerPage))
+
+const paginatedData = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  return data.value.slice(startIndex, endIndex)
+})
+
+function goToPreviousPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    updateURL()
+    scrollToTop()
+  }
+}
+
+function goToNextPage() {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    updateURL()
+    scrollToTop()
+  }
+}
+
+function goToPage(page: number, event: Event) {
+  event.preventDefault()
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    updateURL()
+    scrollToTop()
+  }
+}
+
+function updateURL() {
+  const path = currentPage.value === 1 ? '/news' : `/news?page=${currentPage.value}`
+  router.push(path)
+}
+
+function getPageLink(page: number) {
+  return page === 1 ? '/news' : `/news?page=${page}`
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 </script>
