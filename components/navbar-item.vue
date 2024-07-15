@@ -49,7 +49,7 @@
                 :aria-current="getAriaCurrent('products')"
                 @click="hideDropDownMenu"
               >
-                Products
+                {{ $t('Products') }}
               </NuxtLink>
             </li>
             <li>
@@ -59,7 +59,7 @@
                 :aria-current="getAriaCurrent('enterprise')"
                 @click="hideDropDownMenu"
               >
-                Enterprise
+                {{ $t('Enterprise') }}
               </NuxtLink>
             </li>
             <li>
@@ -69,7 +69,7 @@
                 :aria-current="getAriaCurrent('help')"
                 @click="hideDropDownMenu"
               >
-                Help
+                {{ $t('Help') }}
               </NuxtLink>
             </li>
             <li>
@@ -79,7 +79,7 @@
                 :aria-current="getAriaCurrent('news')"
                 @click="hideDropDownMenu"
               >
-                News
+                {{ $t('News') }}
               </NuxtLink>
             </li>
           </ul>
